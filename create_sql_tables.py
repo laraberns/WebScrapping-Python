@@ -14,6 +14,9 @@ db_name = os.getenv('DB_NAME')
 engine = create_engine(
     f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}')
 
+def get_engine():
+    return engine
+
 def criar_tabelas():
     criar_tabelas_sql = """
     CREATE TABLE IF NOT EXISTS eventos (
