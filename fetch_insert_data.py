@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from create_sql_tables import insert_evento, insert_dados_evento, insert_metadados
+from format_date import format_event_date
 
 def extract_event_details(event_link):
     """Extrai detalhes adicionais de uma página individual do evento."""
@@ -33,16 +34,16 @@ def extractData(url):
     
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
-        # Encontra todos os cards de evento na página principal
         cards = soup.find_all("div", class_="card shadow")
         
-        # Para cada card de evento encontrado, extrai os dados
         for card in cards:
             event_name = card.find("p", class_="card-text")
             event_name = event_name.text.strip() if event_name else "Sem nome" 
             
-            event_date = card.find("div", class_="card-title")
-            event_date = event_date.text.strip() if event_date else "Sem data" 
+            # Extrai a data e converte para o formato desejado
+            event_date_raw = card.find("div", class_="card-title")
+            event_date_raw = event_date_raw.text.strip() if event_date_raw else "Sem data"
+            event_date = format_event_date(event_date_raw)
             
             event_place = card.find("span", class_="text-muted")
             event_place = event_place.text.strip() if event_place else "Sem local" 
@@ -53,7 +54,6 @@ def extractData(url):
             event_photo = card.find("img", class_="card-img-top border-bottom")
             event_photo = event_photo['src'] if event_photo else "Sem foto"  
             
-            # Se o link do evento existir, busca detalhes adicionais como endereço e categoria
             if event_link:
                 event_address, category = extract_event_details(event_link)
             else:
@@ -73,8 +73,10 @@ def extractData(url):
             print(f"Event Photo: {event_photo}")
             print("-" * 40)
     else:
-        # Caso ocorra algum erro na requisição da página principal, exibe a mensagem de erro
         print(f"Error: {response.status_code} for URL {url}")
+
+    """Extrai dados dos eventos da página principal e dos detalhes de cada evento."""
+    response = requests.get(url)
 
 # Chama a função com a URL principal de eventos
 extractData("https://www.pensanoevento.com.br/eventos/")

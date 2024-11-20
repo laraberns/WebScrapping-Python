@@ -21,16 +21,16 @@ def criar_tabelas():
     criar_tabelas_sql = """
     CREATE TABLE IF NOT EXISTS eventos (
         id_evento SERIAL PRIMARY KEY,
-        nome VARCHAR(255) NOT NULL,
-        tipo VARCHAR(100) NOT NULL
+        nome VARCHAR(255),
+        tipo VARCHAR(100)
     );
 
     CREATE TABLE IF NOT EXISTS dados_eventos (
         id_dado SERIAL PRIMARY KEY,
         id_evento INTEGER REFERENCES eventos(id_evento) ON DELETE CASCADE,
-        data_evento VARCHAR(255) NOT NULL,
-        localizacao VARCHAR(255) NOT NULL,
-        address TEXT
+        data_evento DATE,
+        localizacao VARCHAR(255),
+        endereco TEXT
     );
 
     CREATE TABLE IF NOT EXISTS metadados (
@@ -55,11 +55,11 @@ def insert_evento(nome, tipo):
         connection.execute(text("COMMIT;"))
         return result.fetchone()[0]
 
-def insert_dados_evento(id_evento, data_evento, localizacao, address):
+def insert_dados_evento(id_evento, data_evento, localizacao, endereco):
     with engine.connect() as connection:
         connection.execute(
-            text("INSERT INTO dados_eventos (id_evento, data_evento, localizacao, address) VALUES (:id_evento, :data_evento, :localizacao, :address)"),
-            {"id_evento": id_evento, "data_evento": data_evento, "localizacao": localizacao, "address": address}
+            text("INSERT INTO dados_eventos (id_evento, data_evento, localizacao, endereco) VALUES (:id_evento, :data_evento, :localizacao, :endereco)"),
+            {"id_evento": id_evento, "data_evento": data_evento, "localizacao": localizacao, "endereco": endereco}
         )
         connection.execute(text("COMMIT;"))
 
